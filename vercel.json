@@ -11,14 +11,15 @@
       "destination": "/index.html"
     }
   ],
-  "env": {
-    "SUPABASE_URL": "@SUPABASE_URL",
-    "SUPABASE_SERVICE_KEY": "@SUPABASE_SERVICE_KEY",
-    "OPEN_AI_KEY": "@OPEN_AI_KEY",
-    "DEFAULT_EMBEDDING_MODEL": "BAAI/bge-m3",
-    "DEFAULT_TOP_K": "5",
-    "DEFAULT_TEMPERATURE": "0.1",
-    "DEFAULT_CHAT_MODEL": "gpt-4o-mini"
-  }
+
+"env": {
+  "SUPABASE_URL": "${SUPABASE_URL}",
+  "SUPABASE_SERVICE_KEY": "${SUPABASE_SERVICE_KEY}",
+  "OPEN_AI_KEY": "${OPEN_AI_KEY}",
+  "DEFAULT_EMBEDDING_MODEL": "BAAI/bge-m3",
+  "DEFAULT_TOP_K": "5",
+  "DEFAULT_TEMPERATURE": "0.1",
+  "DEFAULT_CHAT_MODEL": "gpt-4o-mini"}
+
 }
 
