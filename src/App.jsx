@@ -26,10 +26,13 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   
   // Backend URL - update this for production
-  const BACKEND_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://your-backend-url.vercel.app' 
-    : 'http://localhost:5001'
+  //const BACKEND_URL = process.env.NODE_ENV === 'production' 
+ //   ? 'https://your-backend-url.vercel.app' 
+ //   : 'http://localhost:5001'
   
+  const BACKEND_URL = process.env.NODE_ENV === 'production' 
+  ? import.meta.env.VITE_BACKEND_URL || 'https://chat-tfm.vercel.app'
+  : 'http://localhost:5001'
   const messagesEndRef = useRef(null)
   
   const scrollToBottom = () => {
