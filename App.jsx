@@ -27,8 +27,9 @@ function App() {
   
   // Backend URL - update this for production
   const BACKEND_URL = process.env.NODE_ENV === 'production' 
-    /*? 'https://your-backend-url.vercel.app' */
-    ? import.meta.env.VITE_BACKEND_URL || window.location.origin
+    //? 'https://your-backend-url.vercel.app' 
+    //? import.meta.env.VITE_BACKEND_URL || window.location.origin
+    ? 'https://chattfm.onrender.com' 
     : 'http://localhost:5001'
   
   const messagesEndRef = useRef(null)
