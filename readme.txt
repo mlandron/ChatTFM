@@ -6,6 +6,9 @@ git add .
 git commit -m "Your commit message"
 git push -u origin main
 
+# git reset HEAD~1 # Revert last commit
+
+
 #Esta version esta buena
 
 #Run Backend
