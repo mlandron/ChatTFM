@@ -20,3 +20,4 @@ npm run dev
 
 #Update library
 pip freeze > requirements.txt
+
