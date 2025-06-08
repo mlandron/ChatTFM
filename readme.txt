@@ -22,3 +22,5 @@ npm run dev
 pip freeze > requirements.txt
 
 #Otros cambios
+
+# Memory requiered 4GB and 2CPU cost 85/month

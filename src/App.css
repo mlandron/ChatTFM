@@ -2,11 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* This layer defines the CSS variables for the entire application,
+  including a full set of colors for both light and dark modes.
+  These variables are used by the shadcn/ui components and Tailwind utility classes.
+*/
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
+ 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
  
@@ -65,7 +69,9 @@
     --ring: 212.7 26.8% 83.9%;
   }
 }
- 
+
+/* This layer applies the base styles to the application.
+*/
 @layer base {
   * {
     @apply border-border;
@@ -73,4 +79,4 @@
   body {
     @apply bg-background text-foreground;
   }
-} 
+}
