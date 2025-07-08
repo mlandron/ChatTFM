@@ -1,12 +1,14 @@
 import os
 import sys
 import logging
+from datetime import datetime
 # DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from chat import chat_bp
+from chat_history import chat_history_bp
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
@@ -36,8 +38,9 @@ CORS(app, origins=[
 ], 
 allow_headers=["Content-Type", "Authorization"],
 methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-# Register chat blueprint
+# Register blueprints
 app.register_blueprint(chat_bp, url_prefix='/api')
+app.register_blueprint(chat_history_bp, url_prefix='/api')
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -54,6 +57,26 @@ def test_supabase():
         return {"status": "connected", "data": response.data}, 200
     except Exception as e:
         return {"status": "disconnected", "error": str(e)}, 500
+
+@app.route('/api/test-connection', methods=['GET'])
+def test_connection():
+    """Test connection to both Supabase and RAG service"""
+    try:
+        # Test Supabase connection
+        supabase_response = supabase.from_('chunk_embeddings').select('*').limit(1).execute()
+        
+        return {
+            "status": "success",
+            "message": "All services connected",
+            "supabase": "connected",
+            "timestamp": datetime.now().isoformat()
+        }, 200
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Connection failed: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }, 500
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

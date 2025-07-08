@@ -8,11 +8,12 @@ import { Label } from '@/components/ui/label.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { ScrollArea } from '@/components/ui/scroll-area.jsx'
 import { Separator } from '@/components/ui/separator.jsx'
-import { Send, Settings, MessageCircle, Database, Loader2, FileText, Bot, User, Sun, Moon } from 'lucide-react'
+import { Send, Settings, MessageCircle, Database, Loader2, FileText, Bot, User, Sun, Moon, History, Plus } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkGfm from 'remark-gfm'
+import ChatHistory from './components/ChatHistory.jsx'
 import './App.css'
 
 // ===================================================================
@@ -120,6 +121,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('unknown');
   
+  // Chat history state
+  const [currentUserId, setCurrentUserId] = useState('anonymous');
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  
   const [embeddingModel, setEmbeddingModel] = useState('BAAI/bge-m3');
   const [topK, setTopK] = useState(10);
   const [temperature, setTemperature] = useState(0.1);
@@ -149,6 +155,11 @@ function App() {
   
   // Initialize with a welcome message and test connection
   useEffect(() => {
+    // Generate a unique user ID for this session
+    const userId = localStorage.getItem('chatbot_user_id') || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('chatbot_user_id', userId);
+    setCurrentUserId(userId);
+    
     setMessages([{
       id: Date.now(),
       type: 'bot',
@@ -207,6 +218,8 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: inputMessage,
+          user_id: currentUserId,
+          conversation_id: currentConversationId,
           embedding_model: embeddingModel,
           top_k: topK,
           temperature: temperature,
@@ -217,6 +230,11 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
       if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
       
       const data = await response.json();
+      
+      // Update conversation ID if it's a new conversation
+      if (data.conversation_id && !currentConversationId) {
+        setCurrentConversationId(data.conversation_id);
+      }
       
       // This correctly attaches the source documents to the message object
       const botMessage = {
@@ -248,6 +266,59 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
       sendMessage();
     }
   };
+
+  const startNewConversation = () => {
+    setCurrentConversationId(null);
+    setMessages([{
+      id: Date.now(),
+      type: 'bot',
+      content: `# ¡Hola! 👋
+
+Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
+
+## ¿Qué puedo hacer?
+
+- Responder preguntas sobre **pensiones**
+- Explicar **procedimientos** del sistema
+- Proporcionar información sobre **beneficios**
+- Ayudar con **requisitos** y documentación
+
+> 💡 **Tip**: Puedes hacer preguntas como:
+> - "¿Cuáles son los requisitos para pensionarse?"
+> - "¿Cómo funciona el cálculo de pensión?"
+> - "¿Qué documentos necesito para una pensión de sobrevivencia?"
+
+
+
+¡Hazme una pregunta sobre el sistema de pensiones dominicano!`,
+      timestamp: new Date()
+    }]);
+    setShowHistory(false);
+  };
+
+  const loadConversation = async (conversationId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/chat-history/conversation/${conversationId}/messages?user_id=${currentUserId}`);
+      if (!response.ok) throw new Error('Failed to load conversation');
+      
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Convert database messages to frontend format
+        const convertedMessages = data.data.map(msg => ({
+          id: msg.id,
+          type: msg.sender,
+          content: msg.message_content,
+          timestamp: new Date(msg.created_at)
+        }));
+        
+        setMessages(convertedMessages);
+        setCurrentConversationId(conversationId);
+        setShowHistory(false);
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  };
   
   return (
     <div className="min-h-screen bg-muted/30 p-2 sm:p-4 font-sans">
@@ -271,6 +342,27 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
             </CardHeader>
             <ScrollArea className="flex-1">
               <CardContent className="space-y-6 p-6">
+                {/* Chat History Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">Historial de Chat</Label>
+                    <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)}>
+                      <History className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={startNewConversation}
+                    className="w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nueva Conversación
+                  </Button>
+                </div>
+                
+                <Separator />
+                
                 <div className="space-y-2">
                   <Label htmlFor="embedding-model">Modelo de Embedding</Label>
                   <Select value={embeddingModel} onValueChange={setEmbeddingModel}>
@@ -307,8 +399,30 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
           </Card>
         </div>
         
+        {/* Chat History Panel */}
+        {showHistory && (
+          <div className="lg:col-span-1">
+            <Card className="h-full flex flex-col">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary">
+                  <History className="w-5 h-5" />
+                  Historial
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 p-0">
+                <ChatHistory 
+                  onBack={() => setShowHistory(false)}
+                  onLoadConversation={loadConversation}
+                  userId={currentUserId}
+                  backendUrl={BACKEND_URL}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
         {/* Chat Panel */}
-        <div className="lg:col-span-3">
+        <div className={`${showHistory ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
           <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">

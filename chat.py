@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from rag_service import RAGService, RAGConfig 
+from chat_history import save_message_to_supabase, generate_conversation_id
 import logging
 import sys
 
@@ -23,7 +24,7 @@ except ValueError as e:
 
 @chat_bp.route('/chat', methods=['POST'])
 def chat():
-    """Handles chat requests by querying the RAG service."""
+    """Handles chat requests by querying the RAG service and saving to chat history."""
     data = request.get_json()
     if not data or 'query' not in data:
         return jsonify({"error": "Missing 'query' in request body"}), 400
@@ -31,6 +32,13 @@ def chat():
     try:
         # Extract and validate parameters
         query = data['query']
+        user_id = data.get('user_id', 'anonymous')  # Default to anonymous if not provided
+        conversation_id = data.get('conversation_id')
+        
+        # Generate conversation ID if not provided
+        if not conversation_id:
+            conversation_id = generate_conversation_id()
+        
         params = {
             "embedding_model": data.get('embedding_model'),
             "vector_top_k": data.get('top_k'),
@@ -44,8 +52,35 @@ def chat():
         # Filter out None values so service uses defaults
         final_params = {k: v for k, v in params.items() if v is not None}
 
+        # Save user message to chat history
+        user_message_result = save_message_to_supabase(
+            user_id=user_id,
+            conversation_id=conversation_id,
+            message_content=query,
+            sender='user'
+        )
+        
+        if user_message_result['status'] != 'success':
+            logger.warning(f"Failed to save user message: {user_message_result['message']}")
+
         # Perform RAG query
         result = rag_service.query_rag(query, **final_params)
+        
+        # Save bot response to chat history
+        bot_message_result = save_message_to_supabase(
+            user_id=user_id,
+            conversation_id=conversation_id,
+            message_content=result.get('answer', ''),
+            sender='bot',
+            ragas_metrics=result.get('ragas_metrics')
+        )
+        
+        if bot_message_result['status'] != 'success':
+            logger.warning(f"Failed to save bot message: {bot_message_result['message']}")
+        
+        # Add conversation_id to the result
+        result['conversation_id'] = conversation_id
+        
         return jsonify(result)
 
     except Exception as e:
