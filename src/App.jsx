@@ -14,6 +14,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkGfm from 'remark-gfm'
 import ChatHistory from './components/ChatHistory.jsx'
+import ChatHistoryModal from './components/ChatHistoryModal.jsx'
 import './App.css'
 
 // ===================================================================
@@ -125,6 +126,7 @@ function App() {
   const [currentUserId, setCurrentUserId] = useState('anonymous');
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   
   const [embeddingModel, setEmbeddingModel] = useState('BAAI/bge-m3');
   const [topK, setTopK] = useState(10);
@@ -346,7 +348,7 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-semibold">Historial de Chat</Label>
-                    <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)}>
+                    <Button variant="ghost" size="icon" onClick={() => setShowHistoryModal(true)}>
                       <History className="w-4 h-4" />
                     </Button>
                   </div>
@@ -399,30 +401,8 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
           </Card>
         </div>
         
-        {/* Chat History Panel */}
-        {showHistory && (
-          <div className="lg:col-span-1">
-            <Card className="h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-primary">
-                  <History className="w-5 h-5" />
-                  Historial
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 p-0">
-                <ChatHistory 
-                  onBack={() => setShowHistory(false)}
-                  onLoadConversation={loadConversation}
-                  userId={currentUserId}
-                  backendUrl={BACKEND_URL}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        )}
-        
         {/* Chat Panel */}
-        <div className={`${showHistory ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+        <div className="lg:col-span-3">
           <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -483,6 +463,18 @@ Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
           </Card>
         </div>
       </div>
+      
+      {/* Chat History Modal */}
+      <ChatHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        onLoadConversation={(conversationId) => {
+          loadConversation(conversationId);
+          setShowHistoryModal(false);
+        }}
+        userId={currentUserId}
+        backendUrl={BACKEND_URL}
+      />
     </div>
   )
 }
