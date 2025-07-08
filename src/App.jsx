@@ -9,6 +9,10 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { ScrollArea } from '@/components/ui/scroll-area.jsx'
 import { Separator } from '@/components/ui/separator.jsx'
 import { Send, Settings, MessageCircle, Database, Loader2, FileText, Bot, User, Sun, Moon } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import remarkGfm from 'remark-gfm'
 import './App.css'
 
 // ===================================================================
@@ -28,19 +32,56 @@ const ChatMessage = ({ message }) => {
     // This div handles the left/right alignment.
     <div className={`flex items-start gap-3 ${isBot ? 'justify-start' : 'justify-end'}`}>
       
-      {/* Bot Icon */}
+      {/* Bot Icon - Only show for bot messages on the left */}
       {isBot && <div className="p-2 rounded-full bg-muted border"><Bot className="w-5 h-5 text-primary" /></div>}
       
       {/* Message Bubble with theme-aware colors */}
       <div className={`max-w-[85%] rounded-lg p-3.5 ${isBot ? 'bg-card border' : 'bg-primary text-primary-foreground'}`}>
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</div>
-        <div className={`text-xs opacity-70 mt-2 text-right ${isBot ? 'text-muted-foreground' : 'text-primary-foreground/80'}`}>
+        <div className={`chat-markdown ${isBot ? 'text-left' : 'text-right'}`}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              // Custom styling for different markdown elements
+              a: ({ children, href }) => (
+                <a 
+                  href={href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {children}
+                </a>
+              ),
+              code: ({ node, inline, className, children, ...props }) => {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match[1]}
+                    PreTag="div"
+                    className="rounded-lg"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
+        <div className={`text-xs opacity-70 mt-2 ${isBot ? 'text-right text-muted-foreground' : 'text-left text-primary-foreground/80'}`}>
           {formatTimestamp(message.timestamp)}
         </div>
         
         {/* Correctly renders clickable source document links */}
         {isBot && sourceDocuments.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-t-border/50">
+          <div className="mt-3 pt-3 border-t border-t-border/50 text-left">
             <h4 className="text-xs font-semibold mb-2">Fuentes Consultadas:</h4>
             <div className="flex flex-wrap gap-2">
               {sourceDocuments.map((doc, idx) => (
@@ -62,7 +103,7 @@ const ChatMessage = ({ message }) => {
         )}
       </div>
 
-      {/* User Icon */}
+      {/* User Icon - Only show for user messages on the right */}
       {!isBot && <div className="p-2 rounded-full bg-muted border"><User className="w-5 h-5" /></div>}
     </div>
   );
@@ -80,9 +121,9 @@ function App() {
   const [connectionStatus, setConnectionStatus] = useState('unknown');
   
   const [embeddingModel, setEmbeddingModel] = useState('BAAI/bge-m3');
-  const [topK, setTopK] = useState(5);
+  const [topK, setTopK] = useState(10);
   const [temperature, setTemperature] = useState(0.1);
-  const [chatModel, setChatModel] = useState('gpt-4o-mini');
+  const [chatModel, setChatModel] = useState('gpt-4o');
   const [showSettings, setShowSettings] = useState(false);
   
   const BACKEND_URL = process.env.NODE_ENV === 'production' 
@@ -111,7 +152,25 @@ function App() {
     setMessages([{
       id: Date.now(),
       type: 'bot',
-      content: '¡Hola! Soy tu asistente RAG. Hazme una pregunta sobre el sistema de pensiones dominicano.',
+      content: `# ¡Hola! 👋
+
+Soy tu **asistente RAG** especializado en el sistema de pensiones dominicano.
+
+## ¿Qué puedo hacer?
+
+- Responder preguntas sobre **pensiones**
+- Explicar **procedimientos** del sistema
+- Proporcionar información sobre **beneficios**
+- Ayudar con **requisitos** y documentación
+
+> 💡 **Tip**: Puedes hacer preguntas como:
+> - "¿Cuáles son los requisitos para pensionarse?"
+> - "¿Cómo funciona el cálculo de pensión?"
+> - "¿Qué documentos necesito para una pensión de sobrevivencia?"
+
+
+
+¡Hazme una pregunta sobre el sistema de pensiones dominicano!`,
       timestamp: new Date()
     }]);
     testConnection();

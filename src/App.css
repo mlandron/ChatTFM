@@ -80,3 +80,128 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for markdown content in chat messages */
+@layer components {
+  .chat-markdown {
+    @apply text-sm leading-relaxed;
+    /* Reset any inherited list styles */
+    list-style: none;
+  }
+  
+  /* Text alignment for different message types */
+  .chat-markdown.text-left {
+    text-align: left;
+  }
+  
+  .chat-markdown.text-right {
+    text-align: right;
+  }
+  
+  /* Ensure lists and other elements respect the text alignment */
+  .chat-markdown.text-right ul,
+  .chat-markdown.text-right ol {
+    text-align: right;
+  }
+  
+  .chat-markdown.text-right li {
+    text-align: right;
+  }
+  
+  .chat-markdown.text-right p {
+    text-align: right;
+  }
+  
+  .chat-markdown.text-right h1,
+  .chat-markdown.text-right h2,
+  .chat-markdown.text-right h3 {
+    text-align: right;
+  }
+  
+  .chat-markdown.text-right blockquote {
+    text-align: right;
+  }
+  
+  /* Cross-browser compatible list styling */
+  .chat-markdown ul {
+    @apply mb-2 space-y-1;
+    list-style: disc outside;
+    padding-left: 1.5em;
+    margin-left: 0;
+  }
+  
+  .chat-markdown ol {
+    @apply mb-2 space-y-1;
+    list-style: decimal outside;
+    padding-left: 1.5em;
+    margin-left: 0;
+  }
+  
+  .chat-markdown li {
+    @apply text-sm;
+    margin-bottom: 0.25rem;
+  }
+  
+  .chat-markdown h1,
+  .chat-markdown h2,
+  .chat-markdown h3 {
+    @apply font-semibold text-foreground;
+  }
+  
+  .chat-markdown h1 {
+    @apply text-lg mb-2;
+  }
+  
+  .chat-markdown h2 {
+    @apply text-base mb-2;
+  }
+  
+  .chat-markdown h3 {
+    @apply text-sm mb-1;
+  }
+  
+  .chat-markdown p {
+    @apply mb-2 last:mb-0;
+  }
+  
+  .chat-markdown blockquote {
+    @apply border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-2;
+  }
+  
+  .chat-markdown code {
+    @apply bg-muted px-1 py-0.5 rounded text-xs font-mono;
+  }
+  
+  .chat-markdown pre {
+    @apply bg-muted p-3 rounded-lg overflow-x-auto mb-2;
+  }
+  
+  .chat-markdown pre code {
+    @apply bg-transparent p-0;
+  }
+  
+  .chat-markdown strong {
+    @apply font-semibold;
+  }
+  
+  .chat-markdown em {
+    @apply italic;
+  }
+  
+  .chat-markdown a {
+    @apply text-primary hover:underline;
+  }
+  
+  .chat-markdown table {
+    @apply w-full border-collapse border border-border mb-2;
+  }
+  
+  .chat-markdown th,
+  .chat-markdown td {
+    @apply border border-border px-2 py-1 text-sm;
+  }
+  
+  .chat-markdown th {
+    @apply bg-muted font-semibold;
+  }
+}
