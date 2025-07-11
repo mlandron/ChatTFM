@@ -1,207 +1,259 @@
-# RAG Chatbot - Sistema de Pensiones Dominicano
+# RAG Chatbot for Dominican Social Security System
 
-## 📋 Descripción del Proyecto
+## Overview
 
-Este es un chatbot inteligente basado en **RAG (Retrieval-Augmented Generation)** especializado en el sistema de pensiones dominicano. El sistema utiliza tecnologías modernas para proporcionar respuestas precisas y contextualizadas sobre pensiones, beneficios, requisitos y procedimientos del sistema de pensiones de República Dominicana.
+This is a Retrieval-Augmented Generation (RAG) chatbot specifically designed for the Dominican Social Security System (SIPEN). The system provides accurate, context-aware responses to questions about Dominican pension laws, regulations, and procedures using a hybrid vector and BM25 search approach.
 
-## 🏗️ Arquitectura del Sistema
+## Key Features
 
-### Frontend
-- **React 18** con **Vite** para el desarrollo
-- **Tailwind CSS** para el diseño responsivo
-- **shadcn/ui** para componentes de interfaz
-- **React Markdown** para renderizado de contenido
-- **Syntax Highlighter** para código
-- **GitHub Flavored Markdown** para tablas y elementos avanzados
+### 🎯 **Enhanced Threshold Management**
+- **High-quality filtering**: Default similarity threshold of 0.75 for better relevance
+- **Adaptive thresholding**: Automatically adjusts from 0.75 → 0.6 → 0.5 if no documents found
+- **Domain-specific filtering**: Only returns documents related to Dominican social security
+- **Graceful fallback**: Returns helpful message for irrelevant queries
 
-### Backend
-- **Flask** (Python) para la API REST
-- **Supabase** como base de datos vectorial
-- **OpenAI** para embeddings y generación de respuestas
-- **LangChain** para el procesamiento de RAG
+### 💬 **Chat History Management**
+- **Persistent conversations**: Save and retrieve chat history in Supabase
+- **User-specific storage**: Separate conversation tracking per user
+- **Conversation management**: Load, delete, and organize chat sessions
+- **Message metadata**: Track sender, timestamps, and conversation IDs
 
-## 🚀 Tecnologías Utilizadas
+### 🔍 **Hybrid Search System**
+- **Vector similarity search**: Using BAAI/bge-m3 embeddings via Supabase RPC
+- **BM25 full-text search**: PostgreSQL-based keyword matching
+- **Ensemble retrieval**: Combines both approaches for optimal results
+- **Score normalization**: Consistent scoring across different retrieval methods
 
-### Frontend
-```
-React 18.2.0
-Vite 5.0.8
-Tailwind CSS 3.3.5
-shadcn/ui components
-react-markdown
-react-syntax-highlighter
-remark-gfm
-lucide-react (iconos)
-```
+### 🛡️ **Quality Assurance**
+- **Relevance checking**: Filters out non-Dominican social security content
+- **Confidence scoring**: Provides quality metrics for responses
+- **Source attribution**: Links to original SIPEN documents
+- **Error handling**: Graceful degradation and informative error messages
 
-### Backend
-```
-Flask
-OpenAI API
-Supabase Vector Database
-LangChain
-Python-dotenv
-```
-
-## ⚙️ Configuración del Proyecto
-
-### Prerrequisitos
-- Node.js 18+ 
-- Python 3.8+
-- Cuenta de OpenAI con API key
-- Proyecto Supabase configurado
-
-### Variables de Entorno
-Crear archivo `.env` en la raíz del proyecto:
-
-```env
-# OpenAI
-OPENAI_API_KEY=tu_openai_api_key
-
-# Supabase
-SUPABASE_URL=tu_supabase_url
-SUPABASE_KEY=tu_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=tu_supabase_service_role_key
-```
-
-## 🛠️ Instalación y Ejecución
-
-### 1. Instalar Dependencias Frontend
-```bash
-npm install
-```
-
-### 2. Instalar Dependencias Backend
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Ejecutar Backend
-```bash
-flask --app main.py run --port=5001
-```
-
-### 4. Ejecutar Frontend
-```bash
-npm run dev
-```
-
-El frontend estará disponible en: `http://localhost:3001`
-El backend estará disponible en: `http://localhost:5001`
-
-## 📊 Características del Chatbot
-
-### Funcionalidades Principales
-- ✅ **Chat interactivo** con interfaz moderna
-- ✅ **Renderizado Markdown** completo (headers, listas, tablas, código)
-- ✅ **Sintaxis highlighting** para bloques de código
-- ✅ **Alineación de texto** (izquierda para respuestas, derecha para preguntas)
-- ✅ **Tema claro/oscuro** con toggle
-- ✅ **Panel de configuración** para parámetros RAG
-- ✅ **Fuentes consultadas** con enlaces a documentos
-- ✅ **Estado de conexión** en tiempo real
-
-### Parámetros Configurables
-- **Modelo de Embedding**: BAAI/bge-m3, OpenAI Small/Large
-- **Modelo de Chat**: GPT-4o, GPT-4o Mini, GPT-4, GPT-3.5 Turbo
-- **Top K**: Número de documentos a recuperar (default: 10)
-- **Temperatura**: Control de creatividad en respuestas (default: 0.1)
-
-### Modelos por Defecto
-- **Chat Model**: `gpt-4o`
-- **Embedding Model**: `BAAI/bge-m3`
-- **Top K**: `10`
-- **Temperature**: `0.1`
-
-## 🎨 Interfaz de Usuario
-
-### Características de la UI
-- **Diseño responsivo** que funciona en móvil y desktop
-- **Tema adaptativo** (claro/oscuro)
-- **Animaciones suaves** y transiciones
-- **Iconografía moderna** con Lucide React
-- **Tipografía optimizada** para legibilidad
-
-### Componentes Principales
-- Panel de chat con scroll automático
-- Panel de configuración colapsable
-- Indicadores de estado de conexión
-- Indicador de carga durante respuestas
-- Enlaces a fuentes consultadas
-
-## 🔧 Comandos Útiles
-
-### Git
-```bash
-git init
-git add .
-git commit -m "Descripción del commit"
-git push -u origin main
-git reset HEAD~1  # Revertir último commit
-```
-
-### Desarrollo
-```bash
-npm run dev          # Iniciar frontend
-npm run build        # Construir para producción
-npm run preview      # Vista previa de producción
-npm run lint         # Linting del código
-```
-
-### Backend
-```bash
-flask --app main.py run --port=5001  # Ejecutar servidor
-pip freeze > requirements.txt        # Actualizar dependencias
-```
-
-## 📁 Estructura del Proyecto
+## Project Structure
 
 ```
 chatbotTFM/
-├── src/
-│   ├── components/ui/          # Componentes shadcn/ui
-│   ├── App.jsx                 # Componente principal
-│   ├── App.css                 # Estilos CSS
-│   └── main.jsx                # Punto de entrada
-├── main.py                     # Servidor Flask
-├── rag_service.py              # Servicio RAG
-├── requirements.txt            # Dependencias Python
-├── package.json                # Dependencias Node.js
-├── tailwind.config.js          # Configuración Tailwind
-├── vite.config.js              # Configuración Vite
-└── .env                        # Variables de entorno
+├── FrontEnd/                 # React frontend application
+│   ├── src/
+│   │   ├── components/       # UI components including chat history
+│   │   ├── App.jsx          # Main application component
+│   │   └── main.jsx         # Application entry point
+│   ├── package.json         # Frontend dependencies
+│   └── vite.config.js       # Vite configuration
+├── Documentation/            # Project documentation and SQL files
+│   ├── THRESHOLD_IMPROVEMENTS.md
+│   ├── SUPABASE_SETUP.md
+│   ├── supabase_functions.sql
+│   └── recreate_table.sql
+├── Testing/                  # Test scripts and utilities
+│   ├── test_threshold_improvements.py
+│   ├── test_chat_history.py
+│   └── test_optimized_service.py
+├── rag_service.py           # Core RAG service with threshold improvements
+├── chat.py                  # Chat API endpoints
+├── chat_history.py          # Chat history management
+├── main.py                  # Flask application entry point
+└── requirements.txt         # Python dependencies
 ```
 
-## 🌐 Despliegue
-
-### Vercel (Frontend)
-- Conectado automáticamente con GitHub
-- Despliegue automático en push a main
+## Technology Stack
 
 ### Backend
-- Configurado para ejecutarse en servidor con Flask
-- Requiere 12GB RAM y 2 CPU mínimo
+- **Python 3.9+** with Flask framework
+- **LangChain** for RAG pipeline orchestration
+- **Supabase** for vector database and chat history
+- **OpenAI GPT-4o-mini** for text generation
+- **BAAI/bge-m3** for embeddings
 
-## 🔒 Seguridad
+### Frontend
+- **React 18** with Vite build system
+- **Tailwind CSS** for styling
+- **Shadcn/ui** components
+- **Axios** for API communication
 
-- Variables de entorno para API keys
-- Validación de entrada en backend
-- CORS configurado para frontend
-- Sanitización de contenido markdown
+### Database
+- **Supabase PostgreSQL** with vector extensions
+- **pgvector** for similarity search
+- **Full-text search** with Spanish language support
 
-## 📝 Notas de Desarrollo
+## Configuration
 
-- **Versión actual**: Beta funcional
-- **Última actualización**: Diciembre 2024
-- **Estado**: En desarrollo activo
-- **Compatibilidad**: Chrome, Safari, Firefox, Edge
+### Environment Variables
 
+```bash
+# Supabase Configuration
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_KEY=your_service_key
 
-## 📄 Licencia
+# OpenAI Configuration
+OPEN_AI_KEY=your_openai_api_key
 
-Este proyecto es parte del Trabajo de Fin de Máster (TFM) en Inteligencia Artificial - EAE Business School.
+# RAG Service Configuration
+DEFAULT_EMBEDDING_MODEL=BAAI/bge-m3
+DEFAULT_VECTOR_TOP_K=10
+DEFAULT_BM25_TOP_K=10
+DEFAULT_RPC_THRESHOLD=0.75
+DEFAULT_ENSEMBLE_WEIGHTS=0.6,0.4
+DEFAULT_TEMPERATURE=0.1
+DEFAULT_CHAT_MODEL=gpt-4o-mini
 
----
+# Threshold Management
+BM25_SCORE_THRESHOLD=0.3
+MIN_DOCUMENT_COUNT=1
+ADAPTIVE_THRESHOLD_ENABLED=true
+```
 
-**Institución**: EAE Business School  
-**Fecha**: Junio 2025
+## Installation & Setup
+
+### 1. Clone and Setup Environment
+
+```bash
+git clone <repository-url>
+cd chatbotTFM
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Configure Environment
+
+```bash
+cp .env.example .env
+# Edit .env with your actual credentials
+```
+
+### 3. Setup Supabase Database
+
+Run the SQL scripts in `Documentation/`:
+- `recreate_table.sql` - Creates the chunk_embeddings table
+- `supabase_functions.sql` - Creates RPC functions for search
+
+### 4. Start the Backend
+
+```bash
+python main.py
+```
+
+### 5. Start the Frontend
+
+```bash
+cd FrontEnd
+npm install
+npm run dev
+```
+
+## API Endpoints
+
+### Chat Endpoints
+- `POST /api/chat` - Send a message and get RAG response
+- `GET /api/test-connection` - Test backend connectivity
+- `GET /api/parameters` - Get available models and parameters
+
+### Chat History Endpoints
+- `POST /api/chat-history/save-message` - Save a chat message
+- `GET /api/chat-history/conversations/<user_id>` - Get user conversations
+- `GET /api/chat-history/conversation/<conversation_id>/messages` - Get conversation messages
+- `DELETE /api/chat-history/conversation/<conversation_id>` - Delete conversation
+
+## Usage Examples
+
+### Basic Chat Query
+```python
+from rag_service import RAGConfig, RAGService
+
+config = RAGConfig()
+service = RAGService(config)
+
+result = service.query_rag("¿Qué dice la ley 87-01 sobre pensiones?")
+print(result["answer"])
+```
+
+### Testing Threshold Improvements
+```bash
+cd Testing
+python test_threshold_improvements.py
+```
+
+## Key Improvements
+
+### Threshold Management
+- **Before**: Default threshold 0.2, allowing low-quality matches
+- **After**: Default threshold 0.75, with adaptive fallback to 0.6 → 0.5
+- **Result**: Higher quality responses, fewer irrelevant results
+
+### Domain Filtering
+- **Before**: Could return answers for non-Dominican social security queries
+- **After**: Strict relevance checking with fallback message
+- **Result**: Only domain-relevant responses, clear guidance for off-topic queries
+
+### Error Handling
+- **Before**: Could crash or return confusing errors
+- **After**: Graceful handling with informative messages
+- **Result**: Better user experience, no system crashes
+
+## Testing
+
+### Run All Tests
+```bash
+cd Testing
+python test_threshold_improvements.py
+python test_chat_history.py
+python test_optimized_service.py
+```
+
+### Test Specific Scenarios
+- **Relevant queries**: Should return detailed answers with sources
+- **Irrelevant queries**: Should return fallback message
+- **Edge cases**: Should handle gracefully without crashes
+
+## Deployment
+
+### Backend Deployment
+- Compatible with Vercel, Railway, or any Python hosting
+- Uses Gunicorn for production serving
+- Environment variables must be configured
+
+### Frontend Deployment
+- Built with Vite for optimized production builds
+- Deploy to Vercel, Netlify, or similar platforms
+- Configure API endpoint URLs for production
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## License
+
+This project is developed for the Dominican Social Security System (SIPEN) and follows their specific requirements and guidelines.
+
+## Support
+
+For issues related to:
+- **RAG functionality**: Check `Documentation/THRESHOLD_IMPROVEMENTS.md`
+- **Database setup**: Check `Documentation/SUPABASE_SETUP.md`
+- **API issues**: Check the test files in `Testing/`
+
+## Recent Updates
+
+### v2.0 - Threshold Improvements
+- Enhanced similarity threshold management
+- Adaptive threshold system
+- Domain-specific relevance filtering
+- Improved error handling and fallback responses
+
+### v1.5 - Chat History
+- Persistent conversation storage
+- User-specific chat management
+- Conversation CRUD operations
+- Enhanced UI for chat history
+
+### v1.0 - Initial Release
+- Basic RAG functionality
+- Vector and BM25 search
+- React frontend
+- Supabase integration
