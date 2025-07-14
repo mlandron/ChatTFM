@@ -27,21 +27,21 @@ class RAGConfig:
         self.default_vector_top_k = int(os.getenv("DEFAULT_VECTOR_TOP_K", 10))
         self.default_bm25_top_k = int(os.getenv("DEFAULT_BM25_TOP_K", 10))
         # Updated to higher threshold for better quality matches
-        self.default_rpc_threshold = float(os.getenv("DEFAULT_RPC_THRESHOLD", 0.75))
-        self.default_ensemble_weights = [float(w.strip()) for w in os.getenv("DEFAULT_ENSEMBLE_WEIGHTS", "0.6, 0.4").split(',')]
+        self.default_rpc_threshold = float(os.getenv("DEFAULT_RPC_THRESHOLD", 0.65))
+        self.default_ensemble_weights = [float(w.strip()) for w in os.getenv("DEFAULT_ENSEMBLE_WEIGHTS", "0.5, 0.5").split(',')]
         self.default_temperature = float(os.getenv("DEFAULT_TEMPERATURE", 0.1))
         self.default_chat_model = os.getenv("DEFAULT_CHAT_MODEL", "gpt-4o-mini")
         # New configuration options for threshold management
         self.min_document_count = int(os.getenv("MIN_DOCUMENT_COUNT", 1))
         self.adaptive_threshold_enabled = os.getenv("ADAPTIVE_THRESHOLD_ENABLED", "true").lower() == "true"
-        self.adaptive_threshold_steps = [0.75, 0.6, 0.5]  # More restrictive - minimum 0.5
+        self.adaptive_threshold_steps = [0.6, 0.55, 0.5]  # More restrictive - minimum 0.5
         self.bm25_score_threshold = float(os.getenv("BM25_SCORE_THRESHOLD", 0.3))  # Minimum BM25 score
 
 class SupabaseRPCRetriever(BaseRetriever):
     embeddings: Embeddings
     rpc_name: str = "match_chunks"
     top_k: int = 10
-    threshold: float = 0.75  # Updated default threshold
+    threshold: float = 0.65  # Updated default threshold
     _client: Any = PrivateAttr()
 
     def __init__(self, client: Any, embeddings: Embeddings, **kwargs):
