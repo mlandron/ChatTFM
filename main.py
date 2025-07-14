@@ -30,14 +30,29 @@ app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 #CORS(app, origins=["http://localhost:3000", "https://*.vercel.app"])
 #CORS(app, origins=["http://localhost:3000", "https://chat-tfm.vercel.app", "https://*.vercel.app"])
 # More permissive CORS configuration
-CORS(app, origins=[
-    "http://localhost:3000", 
-    "https://*.vercel.app", 
-    "https://chat-tfm.vercel.app",
-    "https://*.vercel.app"
-], 
-allow_headers=["Content-Type", "Authorization"],
-methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+#CORS(app, origins=[
+#    "http://localhost:3000", 
+#    "https://*.vercel.app", 
+#    "https://chat-tfm.vercel.app",
+#    "https://*.vercel.app"
+#], 
+#allow_headers=["Content-Type", "Authorization"],
+#methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+### New CORS configuration
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",
+            "https://chat-tfm.vercel.app",
+            "https://*.vercel.app"  # Wildcard for Vercel previews
+        ],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    }
+})
+
+
 # Register blueprints
 app.register_blueprint(chat_bp, url_prefix='/api')
 app.register_blueprint(chat_history_bp, url_prefix='/api')
